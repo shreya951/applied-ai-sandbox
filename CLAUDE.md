@@ -39,6 +39,14 @@ pytest tests/test_task_01.py
 - When unsure, prefer reading the test file first — it tells you exactly
   what behavior is expected.
 
+## Auth conventions
+
+- Authentication is handled via Flask sessions (`flask.session`).
+- Never store plaintext passwords — hash with `werkzeug.security` (`generate_password_hash` / `check_password_hash`).
+- Protect routes that require login with a `@login_required` decorator (or an explicit `session` check at the top of the view).
+- On logout, call `session.clear()` rather than deleting individual keys.
+- Don't roll custom crypto; use the helpers already in the stack.
+
 ## Working with Claude here
 
 - Always read the task file before writing code.
