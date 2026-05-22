@@ -25,6 +25,9 @@
     <textarea id="body" name="body" rows="6">{{ body or '' }}</textarea>
     {% if error_body %}<p class="error">{{ error_body }}</p>{% endif %}
 
+    <label for="tags">Tags <span style="font-weight:400;color:#666">(optional — comma-separated, e.g. work, personal)</span></label>
+    <input id="tags" name="tags" type="text" value="{{ tags_value or '' }}">
+
     <div class="actions">
       <button type="submit">Save note</button>
       <a href="{{ url_for('home') }}">Cancel</a>
