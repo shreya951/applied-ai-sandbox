@@ -5,7 +5,7 @@ describe exactly what "done" means.
 """
 from __future__ import annotations
 
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, abort
 
 
 def create_app() -> Flask:
@@ -19,14 +19,15 @@ def create_app() -> Flask:
     @app.route("/")
     def home():
         tag_filter = request.args.get("tag", "")
-        if tag_filter:
-            filtered = [n for n in app.notes if tag_filter in n.get("tags", [])]
-        else:
-            filtered = app.notes
+        indexed = [
+            (i, n) for i, n in enumerate(app.notes)
+            if not tag_filter or tag_filter in n.get("tags", [])
+        ]
+        indexed_sorted = sorted(indexed, key=lambda x: not x[1].get("is_starred", False))
         all_tags = sorted({t for n in app.notes for t in n.get("tags", [])})
         return render_template(
             "home.html",
-            notes=filtered,
+            notes=indexed_sorted,
             all_tags=all_tags,
             current_tag=tag_filter,
         )
@@ -51,9 +52,16 @@ def create_app() -> Flask:
                     error_title=error_title,
                     error_body=error_body,
                 )
-            app.notes.append({"title": title, "body": body, "tags": tags})
+            app.notes.append({"title": title, "body": body, "tags": tags, "is_starred": False})
             return redirect(url_for("home"))
         return render_template("new_note.html")
+
+    @app.route("/notes/<int:idx>/star", methods=["POST"])
+    def star_note(idx):
+        if idx < 0 or idx >= len(app.notes):
+            abort(404)
+        app.notes[idx]["is_starred"] = not app.notes[idx].get("is_starred", False)
+        return redirect(url_for("home"))
 
     # TASK 02 will add a /notes/<idx>/delete route here.
 

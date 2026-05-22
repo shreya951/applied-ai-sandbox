@@ -14,6 +14,8 @@
     .filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
     .filter-bar a { display: inline-block; padding: 0.3rem 0.85rem; border-radius: 999px; border: 1px solid #ccc; text-decoration: none; color: #333; font-size: 0.875rem; }
     .filter-bar a.active { background: #1a2540; color: #fff; border-color: #1a2540; }
+    .note.starred { background: #fffbe6; border-color: #f0c040; }
+    .star-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #f0a500; padding: 0; line-height: 1; }
   </style>
 </head>
 <body>
@@ -33,9 +35,12 @@
 
   <h2 style="margin-top: 1rem;">Your notes ({{ notes|length }})</h2>
   {% if notes %}
-    {% for note in notes %}
-      <div class="note">
+    {% for idx, note in notes %}
+      <div class="note {{ 'starred' if note.get('is_starred') else '' }}">
         <h3>
+          <form method="POST" action="/notes/{{ idx }}/star" style="display:inline;margin:0">
+            <button type="submit" class="star-btn" title="Toggle star">{{ "★" if note.get("is_starred") else "☆" }}</button>
+          </form>
           {{ note.title }}
           {% for tag in note.get("tags", []) %}
             <span class="tag-chip">{{ tag }}</span>
